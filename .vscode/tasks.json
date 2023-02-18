@@ -1,0 +1,31 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "rust: cargo build ARM",
+            "type": "cargo",
+            "command": "build",
+            "args": [
+                "--target=aarch64-unknown-linux-gnu"
+            ],
+            "problemMatcher": [
+                "$rustc"
+            ],
+            "group": "build",
+        },
+        {
+            "label": "rust: remote ARM debug setup",
+            "type": "shell",
+            "command": "${workspaceFolder}/scripts/remote_debug.sh",
+            "args": [
+                "${workspaceFolder}",
+                "192.168.0.125",
+                "1234"
+            ],
+            "group": "none",
+            "dependsOn": [
+                "rust: cargo build ARM",
+            ],
+        },
+    ]
+}
