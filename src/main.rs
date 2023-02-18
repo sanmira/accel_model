@@ -1,8 +1,6 @@
-use libc::{c_void, read, write};
 use std::fs::OpenOptions;
-use std::io::Write;
+use std::io::{Write, Read};
 use std::os::unix::io::{AsRawFd};
-use sysinfo::{System, SystemExt};
 
 const I2C_SLAVE: u64 = 0x0703;
 const I2C_ADDR: u8 = 0x18;
@@ -31,25 +29,10 @@ fn main() -> std::io::Result<()> {
 
     file.write(&mut array)?;
 
-    unsafe {
-        let result = read(file.as_raw_fd(), array.as_ptr() as *mut c_void, 1);
-        if result != 1 {
-            panic!("Cannot read register value")
-        }
-    };
+    file.read(&mut array)?;
 
     let result = array[0];
     println!("Who am I: {:#01x}", result);
-
-    let mut sys = System::new_all();
-    sys.refresh_all();
-    println!("System name:             {:?}", sys.name());
-    println!("System kernel version:   {:?}", sys.kernel_version());
-    println!("System OS version:       {:?}", sys.os_version());
-    println!("System host name:        {:?}", sys.host_name());
-
-    // Number of CPUs:
-    println!("NB CPUs: {}", sys.cpus().len());
 
     Ok(())
 }
