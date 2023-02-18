@@ -1,5 +1,6 @@
 use libc::{c_void, read, write};
 use std::fs::OpenOptions;
+use std::io::Write;
 use std::os::unix::io::{AsRawFd};
 use sysinfo::{System, SystemExt};
 
@@ -8,7 +9,7 @@ const I2C_ADDR: u8 = 0x18;
 
 fn main() -> std::io::Result<()> {
     let i2c_adapter = "/dev/i2c-1";
-    let file = OpenOptions::new()
+    let mut file = OpenOptions::new()
         .read(true)
         .write(true)
         .open(i2c_adapter)?;
@@ -28,16 +29,7 @@ fn main() -> std::io::Result<()> {
     println!("{:#01x}", I2C_SLAVE);
     println!("{:#01x}", I2C_ADDR);
 
-    unsafe {
-        let result = write(
-            file.as_raw_fd(),
-            array.to_vec().as_ptr() as *const c_void,
-            1,
-        );
-        if result != 1 {
-            panic!("Cannot specify register to read from")
-        }
-    };
+    file.write(&mut array)?;
 
     unsafe {
         let result = read(file.as_raw_fd(), array.as_ptr() as *mut c_void, 1);
